@@ -1,22 +1,25 @@
-// Database tasks run inside the running containers.
+// Database tasks. Work whether or not the app is running: the database is started if needed, and
+// migrate/seed run in a one-off API container (`docker compose run --rm`), so no running API is required.
 // Usage: node scripts/db.mjs <migrate|seed|reset>
 //   migrate  apply pending SQL migrations
 //   seed     insert demo data (skipped when users already exist)
 //   reset    wipe the database, then migrate and seed again (the test database is not touched)
-import { c, compose, env, fail, ok, requireDocker, requireService, step } from './lib.mjs';
+import { c, compose, env, fail, ok, requireDocker, step } from './lib.mjs';
 
 const task = process.argv[2];
 const TASKS = ['migrate', 'seed', 'reset'];
 if (!TASKS.includes(task)) fail(`Unknown task "${task ?? ''}". Use one of: ${TASKS.join(', ')}`);
 
-// The API image ships the compiled scripts in dist/
-const migrate = () => compose('exec', '-T', 'api', 'node', 'dist/db/migrate.js');
-const seed = () => compose('exec', '-T', 'api', 'node', 'dist/db/seed.js');
+// The API image ships the compiled scripts in dist/. `run --rm` builds the image if it does not exist yet.
+const inApi = (...cmd) => compose('run', '--rm', '--no-TTY', 'api', ...cmd);
+const migrate = () => inApi('node', 'dist/db/migrate.js');
+const seed = () => inApi('node', 'dist/db/seed.js');
 
 try {
   requireDocker();
-  requireService('db');
-  requireService('api');
+
+  step('Making sure the database is running');
+  await compose('up', '-d', '--wait', 'db');
 
   if (task === 'reset') {
     const user = env('POSTGRES_USER', 'clinic');

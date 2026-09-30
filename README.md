@@ -36,13 +36,13 @@ npm run setup
 # 3. Build the Docker images (database, API, web app)
 npm run build
 
-# 4. Run: start the database, the API and the web app
-#    (waits until everything is ready, then prints the URLs and demo accounts)
-npm start
-
-# 5. Database: create the tables and insert the demo data (seeder)
+# 4. Database: create the tables and insert the demo data (seeder)
 npm run db:migrate
 npm run db:seed
+
+# 5. Run: start the database, the API and the web app
+#    (waits until everything is ready, then prints the URLs and demo accounts)
+npm start
 
 # 6. Optional: run the backend tests
 npm test
@@ -52,16 +52,16 @@ npm test
 |---|---|---|
 | Setup | `npm run setup` | Creates `.env` from `.env.example` (kept if it already exists) and runs `npm ci` in `backend/` and `frontend/` |
 | Build | `npm run build` | Builds the `api` and `web` Docker images |
-| Run | `npm start` | Starts PostgreSQL, the API and the web app in the background, waits until they answer, prints the URLs and demo accounts |
-| Migrate | `npm run db:migrate` | Creates the tables, enums and indexes from `backend/migrations/` (skips what is already applied) |
+| Migrate | `npm run db:migrate` | Starts the database if needed and creates the tables, enums and indexes from `backend/migrations/` (skips what is already applied) |
 | Seed | `npm run db:seed` | Inserts the demo data: 1 admin, 2 staff, 5 patients, 10 appointments (skipped if data already exists) |
+| Run | `npm start` | Starts PostgreSQL, the API and the web app in the background, waits until they answer, prints the URLs and demo accounts |
 | Test | `npm test` | Runs the backend tests inside the API container |
 
 Good to know:
 
 - **The short way:** `npm start` alone is enough. It builds the images if needed, and the API runs the
-  migrations and the seeder every time it starts. Steps 2, 3 and 5 are there so each part can be run
-  and checked on its own, and running them again is safe.
+  migrations and the seeder every time it starts (they find nothing left to do after step 4). Steps 2 to 4
+  are there so each part can be run and checked on its own, and running them again is safe.
 - **First run** takes a few minutes: Docker downloads the base images and installs dependencies inside the containers.
 - **Settings:** Compose has defaults for every variable, so the `.env` file is optional for Docker. Edit it to
   change ports, the JWT secret or the time zone (see [Environment variables](#environment-variables)).
@@ -149,11 +149,11 @@ All commands run from the project root. The scripts live in [`scripts/`](scripts
 | `npm run ps` | Show container status |
 | `npm run clean` | Remove containers **and** the database volume |
 
-### Database (the stack must be running)
+### Database (works whether the app is running or not)
 
 | Command | What it does |
 |---|---|
-| `npm run db:migrate` | Apply pending SQL files from `backend/migrations/` (tracked in `schema_migrations`) |
+| `npm run db:migrate` | Start the database if needed and apply pending SQL files from `backend/migrations/` (tracked in `schema_migrations`) |
 | `npm run db:seed` | Run the seeder: 3 users, 5 patients, 10 appointments (skipped when `users` is not empty) |
 | `npm run db:reset` | Empty the database, then migrate and seed again. Sign in again afterwards |
 | `npm run db:psql` | Open a `psql` shell on the database (uses the default `clinic` user and `clinicflow` db) |
@@ -162,7 +162,7 @@ All commands run from the project root. The scripts live in [`scripts/`](scripts
 
 | Command | What it does |
 |---|---|
-| `npm test` | Backend tests (Jest + Supertest) inside the API container |
+| `npm test` | Backend tests (Jest + Supertest) in a temporary API container |
 | `npm run typecheck` | TypeScript check of backend and frontend (needs `npm run setup` first) |
 
 Tests use a separate `clinicflow_test` database, created on the first start of the db volume
@@ -235,7 +235,6 @@ same everywhere. A few details:
 |---|---|
 | `Docker is not installed or not on PATH` / `Docker is installed but not running` | Install or start Docker Desktop (Windows/macOS) or the Docker service (Linux), then run `npm start` again. |
 | `port is already allocated` (5432, 4000 or 5173) | Another program uses the port. Stop it, or pick other ports in `.env` (`DB_PORT`, `API_PORT`, `WEB_PORT`) and set `VITE_API_URL` / `CORS_ORIGIN` to match. |
-| `The "api" container is not running` | The `db:*` and `test` scripts need the stack: run `npm start` first. |
 | Signed out, or "User no longer exists", after `npm run db:reset` | Expected: users were recreated. Sign in again. |
 | `npm test` fails with `database "clinicflow_test" does not exist` | The database volume was created before the test database existed. Run `npm run start:fresh` once. |
 | Something looks stuck | `npm run logs` to see what each service is doing, then `npm run start:fresh` to rebuild from scratch. |

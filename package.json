@@ -19,7 +19,7 @@
     "db:seed": "node scripts/db.mjs seed",
     "db:reset": "node scripts/db.mjs reset",
     "db:psql": "docker compose exec db psql -U clinic -d clinicflow",
-    "test": "docker compose exec -T api npm test",
+    "test": "docker compose run --rm --no-TTY api npm test",
     "clean": "docker compose down -v --remove-orphans",
     "setup": "node scripts/setup.mjs",
     "dev:local": "node scripts/dev-local.mjs",

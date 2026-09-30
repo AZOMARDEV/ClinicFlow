@@ -60,18 +60,6 @@ export function requireDocker() {
   if (res.status !== 0) fail('Docker is installed but not running. Start Docker and try again.');
 }
 
-export function isServiceRunning(service) {
-  const res = spawnSync('docker', ['compose', 'ps', '--status', 'running', '--services'], {
-    cwd: ROOT,
-    encoding: 'utf8',
-  });
-  return res.status === 0 && res.stdout.split(/\r?\n/).map((s) => s.trim()).includes(service);
-}
-
-export function requireService(service) {
-  if (!isServiceRunning(service)) fail(`The "${service}" container is not running. Start the stack first: ${c.bold('npm start')}`);
-}
-
 /** Stops a child process and everything it started (npm → node/vite). */
 export function killTree(child) {
   if (child.exitCode !== null) return;

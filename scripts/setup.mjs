@@ -19,7 +19,7 @@ try {
     await run('npm', ['ci', '--no-audit', '--no-fund'], { cwd: path.join(ROOT, dir) });
   }
 
-  ok('Setup complete. Next: npm start');
+  ok('Setup complete. Next: npm run build, then npm run db:migrate and npm run db:seed, then npm start');
 } catch (err) {
   fail(err.message);
 }
