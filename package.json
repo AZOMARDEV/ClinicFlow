@@ -1,0 +1,28 @@
+{
+  "name": "clinicflow",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ClinicFlow: patients, appointments and a dashboard (PostgreSQL, Express, React, Node)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node scripts/up.mjs",
+    "start:fresh": "node scripts/up.mjs --fresh",
+    "stop": "docker compose down",
+    "restart": "docker compose restart",
+    "logs": "docker compose logs -f --tail=100",
+    "logs:api": "docker compose logs -f --tail=100 api",
+    "ps": "docker compose ps",
+    "db:migrate": "node scripts/db.mjs migrate",
+    "db:seed": "node scripts/db.mjs seed",
+    "db:reset": "node scripts/db.mjs reset",
+    "db:psql": "docker compose exec db psql -U clinic -d clinicflow",
+    "test": "docker compose exec -T api npm test",
+    "clean": "docker compose down -v --remove-orphans",
+    "setup": "node scripts/setup.mjs",
+    "dev:local": "node scripts/dev-local.mjs",
+    "test:local": "npm --prefix backend test",
+    "typecheck": "npm --prefix backend run typecheck && npm --prefix frontend run typecheck"
+  }
+}
