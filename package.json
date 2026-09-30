@@ -7,6 +7,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "build": "docker compose build",
     "start": "node scripts/up.mjs",
     "start:fresh": "node scripts/up.mjs --fresh",
     "stop": "docker compose down",

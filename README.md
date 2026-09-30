@@ -3,6 +3,10 @@
 A small PERN app (PostgreSQL, Express, React, Node) for a clinic: patients, appointments, users with roles, and a
 dashboard. It enforces the rule that a patient can't have two confirmed appointments less than 30 minutes apart.
 
+![ClinicFlow dashboard](docs/screenshots/dashboard.png)
+
+More screens are in [Screenshots](#screenshots).
+
 ## Getting started
 
 Works the same on **Windows, macOS and Linux**.
@@ -17,29 +21,61 @@ Works the same on **Windows, macOS and Linux**.
 
 On Windows and macOS, **open Docker Desktop and wait until it says it is running** before going further.
 
-### 2. Get the code
+### 2. Get the code and run it
+
+Copy and run these commands in a terminal (PowerShell, Terminal or any shell), one after the other:
+
+```bash
+# 1. Download the code
+git clone https://github.com/AZOMARDEV/ClinicFlow.git clinicflow
+cd clinicflow
+
+# 2. Setup: create the .env file and install the backend + frontend dependencies
+npm run setup
+
+# 3. Build the Docker images (database, API, web app)
+npm run build
+
+# 4. Run: start the database, the API and the web app
+#    (waits until everything is ready, then prints the URLs and demo accounts)
+npm start
+
+# 5. Database: create the tables and insert the demo data (seeder)
+npm run db:migrate
+npm run db:seed
+
+# 6. Optional: run the backend tests
+npm test
+```
+
+| Step | Command | What it does |
+|---|---|---|
+| Setup | `npm run setup` | Creates `.env` from `.env.example` (kept if it already exists) and runs `npm ci` in `backend/` and `frontend/` |
+| Build | `npm run build` | Builds the `api` and `web` Docker images |
+| Run | `npm start` | Starts PostgreSQL, the API and the web app in the background, waits until they answer, prints the URLs and demo accounts |
+| Migrate | `npm run db:migrate` | Creates the tables, enums and indexes from `backend/migrations/` (skips what is already applied) |
+| Seed | `npm run db:seed` | Inserts the demo data: 1 admin, 2 staff, 5 patients, 10 appointments (skipped if data already exists) |
+| Test | `npm test` | Runs the backend tests inside the API container |
+
+Good to know:
+
+- **The short way:** `npm start` alone is enough. It builds the images if needed, and the API runs the
+  migrations and the seeder every time it starts. Steps 2, 3 and 5 are there so each part can be run
+  and checked on its own, and running them again is safe.
+- **First run** takes a few minutes: Docker downloads the base images and installs dependencies inside the containers.
+- **Settings:** Compose has defaults for every variable, so the `.env` file is optional for Docker. Edit it to
+  change ports, the JWT secret or the time zone (see [Environment variables](#environment-variables)).
+
+### 3. Or: run the API and web app on your machine (hot reload)
+
+For development, only PostgreSQL runs in Docker and the code reloads when you save a file:
 
 ```bash
 git clone https://github.com/AZOMARDEV/ClinicFlow.git clinicflow
 cd clinicflow
+npm run setup        # .env + dependencies
+npm run dev:local    # starts PostgreSQL, runs migrations + seeder, then the API and web app (Ctrl+C stops both)
 ```
-
-### 3. Start everything
-
-```bash
-npm start
-```
-
-The first run takes a few minutes (it downloads images and installs dependencies inside the containers).
-The script:
-
-1. builds the images and starts PostgreSQL, the API and the web app;
-2. lets the API run the **migrations** and the **seeder** (the seeder is skipped if data already exists);
-3. waits until the API and the web app answer;
-4. prints the URLs and the demo accounts.
-
-No `npm install` and no `.env` are needed for this: the containers install their own dependencies and
-Compose has defaults for every variable. To change a value, `cp .env.example .env` (or `npm run setup`) and edit it.
 
 ### 4. Open the app
 
@@ -104,6 +140,7 @@ All commands run from the project root. The scripts live in [`scripts/`](scripts
 
 | Command | What it does |
 |---|---|
+| `npm run build` | Build the Docker images (`npm start` also builds when needed) |
 | `npm start` | Build and start db + api + web in the background, wait until ready, print URLs and accounts |
 | `npm run start:fresh` | Same, but delete the database volume first (brand-new data) |
 | `npm stop` | Stop and remove the containers (data is kept in the volume) |
@@ -159,6 +196,20 @@ npm run start:fresh       # or: rebuild everything from an empty volume
 npm run setup
 npm run dev:local
 ```
+
+## Screenshots
+
+| Login | Dashboard |
+|---|---|
+| ![Login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+
+| Patients | Patient details |
+|---|---|
+| ![Patients](docs/screenshots/patients.png) | ![Patient details](docs/screenshots/patient-details.png) |
+
+| Appointments |
+|---|
+| ![Appointments](docs/screenshots/appointments.png) |
 
 ## Windows, macOS and Linux notes
 
